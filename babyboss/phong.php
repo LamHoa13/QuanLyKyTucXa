@@ -17,16 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add' && $maphong && $loaiphong) {
         $stmt = $mysqli->prepare("INSERT INTO phong (maphong, loaiphong, succhua, soluong_hientai, trangthai) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("ssiis", $maphong, $loaiphong, $succhua, $soluong_hientai, $trangthai);
-        if (!$stmt->execute()) {
-            // Kiểm tra lỗi mã phòng trùng
-            if ($mysqli->errno === 1062) { // 1062 = Duplicate entry
-                echo "<script>alert('Mã phòng đã tồn tại!'); window.location.href='welcome.php?page=phong';</script>";
-                exit();
-            } else {
-                echo "Lỗi khi thêm phòng: " . $mysqli->error;
-                exit();
-            }
-        }
+        $stmt->execute();
         $stmt->close();
     } elseif ($action === 'edit' && $maphong) {
         $stmt = $mysqli->prepare("UPDATE phong SET loaiphong=?, succhua=?, soluong_hientai=?, trangthai=? WHERE maphong=?");
@@ -40,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     }
 
-    header("Location: welcome.php?page=phong");
+    header("Location: Welcome.php!@#");
     exit();
 }
 

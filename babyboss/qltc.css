@@ -1,0 +1,25 @@
+.tim {
+    background-color: #3498db; /* Màu xanh */
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.tim:hover {
+    background-color: #2980b9;
+}
+
+.them {
+    background-color: #2ecc71; /* Màu xanh lá */
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.them:hover {
+    background-color: #27ae60;
+}

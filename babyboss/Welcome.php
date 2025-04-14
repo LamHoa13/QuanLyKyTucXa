@@ -1,6 +1,7 @@
 <?php
 include("./sinhvien.php");
 include("./phong.php");
+include("./thanhtoan.php");
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -10,8 +11,7 @@ include("./phong.php");
     <title>Phần mềm quản lý ký túc xá</title>
     <link rel="stylesheet" href="qlp.css">
     <link rel="stylesheet" href="qlsv.css">
-    <link rel="stylesheet" href="footer.css" type="text/css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="qltc.css">
     <style>
         * {
             margin: 0;
@@ -93,19 +93,6 @@ include("./phong.php");
         .hidden {
             display: none !important;
         }
-        .footer {
-        background: linear-gradient(145deg, #67686a, #686a6c);
-        padding: 20px;
-        text-align: center;
-        font-size: 20px;
-        color: #ede0e0f8;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        z-index: 100;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        }
     </style>
 </head>
 <body>
@@ -146,7 +133,7 @@ include("./phong.php");
                             </select>
 
                         </div>
-                        <input type="hidden" id="actionInput" name="action" value="">
+                        <input type="hidden" id="actionsv" name="action" value="">
                         <div class="form-actions">
                             <button type="submit" name="action" value="add" class="add">Thêm</button>
                             <button type="submit" name="action" value="edit" class="edit">Cập Nhật</button>
@@ -261,6 +248,45 @@ include("./phong.php");
                 </section>
 
                 <section id="thanh-toan" class="hidden">
+                    <form method="post" action="thanhtoan.php">
+                        <div class="input">
+                            MÃ HÓA ĐƠN: <input name="mahd" placeholder="Mã hóa đơn" required>
+                            NGÀY LẬP: <input type="date" name="ngaylap" placeholder="ngày lập hóa đơn" required>
+                            MSSV: <input name="mssv" placeholder="mã số sinh viên" required>
+                            NỘI DUNG: <input name="noidung" placeholder="nội dung hóa đơn" required>
+                            SỐ TIỀN: <input name="sotien" placeholder="số tiền" required>
+                            
+                        </div>
+                        <input type="hidden" id="action_tt" name="action_thanhtoan" value="">
+                        <div class="form-actions">
+                            <button type="submit" name="action_thanhtoan" value="add" class="them">Thêm</button><br><br>
+                        </div>
+                    </form>
+                    <form method="get" style="margin-top: 10px;">
+                        <input name="search" placeholder="Tìm theo MSSV hoặc Mã Hóa Đơn" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                        <button type="submit" class="tim">Tìm kiếm</button>
+                    </form>
+                    <button class="btn" id="btnxem" onclick="hienhoadon()">Xem Danh Sách Hóa Đơn</button>
+                        <table id="danhsach" style="display:none;">
+                            <tr>
+                                <th>MÃ HÓA ĐƠN</th>
+                                <th>NGÀY LẬP</th>
+                                <th>MSSV</th>
+                                <th>NỘI DUNG</th>
+                                <th>SỐ TIỀN</th>
+                            </tr>
+                            <?php while ($row = $ketqua->fetch_assoc()): ?>
+                                <tr>
+                
+                                    <td><?= htmlspecialchars($row['mahd']) ?></td>
+                                    <td><?= htmlspecialchars($row['ngaylap']) ?></td>
+                                    <td><?= htmlspecialchars($row['mssv']) ?></td>
+                                    <td><?= htmlspecialchars($row['noidung']) ?></td>
+                                    <td><?= htmlspecialchars($row['sotien']) ?></td>
+
+                                </tr>
+                            <?php endwhile; ?>
+                        </table>
                 </section>
             </div>
         </main>
@@ -271,13 +297,24 @@ include("./phong.php");
         document.getElementById('action_room_input').value = action;
     }
 
-    function toggleStudentList() {
-        let tableContainer = document.getElementById("studentTableContainer");
-        tableContainer.style.display = (tableContainer.style.display === "none") ? "table" : "none";
+    function hienhoadon() {
+        let danhsach = document.getElementById("danhsach");
+        let button = document.getElementById("btnxem");
+        if (danhsach.style.display === "none" || danhsach.style.display === "") {
+        danhsach.style.display = "table";
+        button.innerText = "Ẩn danh sách hóa đơn";
+    } else {
+        danhsach.style.display = "none";
+        button.innerText = "Xem danh sách hóa đơn";
+    }
     }
 
     function toggleRoomList() {
         let tableContainer = document.getElementById("roomTableContainerPhong");
+        tableContainer.style.display = (tableContainer.style.display === "none") ? "table" : "none";
+    }
+    function toggleStudentList() {
+        let tableContainer = document.getElementById("studentTableContainer");
         tableContainer.style.display = (tableContainer.style.display === "none") ? "table" : "none";
     }
     function selectRadioByMaphong(maphong) {
@@ -353,79 +390,48 @@ function selectAndEdit(data) {
         }
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.querySelector("#sinh-vien form");
-        const actionInput = document.querySelector("#actionInput");
-        let actionClicked = "";
-        form.querySelectorAll("button[type='submit']").forEach(button => {
-            button.addEventListener("click", function () {
-                actionClicked = this.value;
-                if (actionInput) {
-                    actionInput.value = this.value;
-                }
-            });
-        });
-        form.addEventListener("submit", function () {
-            setTimeout(function () {
-                if (actionClicked === "add" || actionClicked === "edit") {
-                    const actionText = actionClicked === "add" ? "thêm" : "sửa";
-                    const confirmMore = confirm(`Đã ${actionText} thành công! Bạn có muốn tiếp tục ${actionText} nữa không?`);
-                    if (!confirmMore) {
-                        window.location.href = "welcome.php";
-                    }
-                }
-            }, 300);
+    function setupFormHandler(formSelector, actionInputId, redirectUrl, labels = { add: "thêm", edit: "cập nhật" }) {
+    const form = document.querySelector(formSelector);
+    const actionInput = document.getElementById(actionInputId);
+    let actionClicked = "";
+
+    if (!form || !actionInput) return;
+
+    form.querySelectorAll("button[type='submit']").forEach(button => {
+        button.addEventListener("click", function () {
+            actionClicked = this.value;
+            actionInput.value = this.value;
         });
     });
-    </script>
-    <footer>
-    <div class="footer-container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Liên hệ</h3>
-                <div class="contact-info">
-                    <p>
-                        <i class="fas fa-map-marker-alt"></i>
-                        Địa chỉ: 178 Võ Thị Sáu, TP. Bạc Liêu
-                    </p>
-                    <p>
-                        <i class="fas fa-phone"></i>
-                        ĐT: 0291.3821 107
-                    </p>
-                    <p>
-                        <i class="fas fa-envelope"></i>
-                        tuyensinh@blu.edu.vn
-                    </p>
-                </div>
-            </div>
 
-            <div class="footer-section">
-                <h3>Liên kết nhanh</h3>
-                <ul class="footer-links">
-                    <li><a href="#home">Trang chủ</a></li>
-                    <li><a href="#services">Dịch vụ</a></li>
-                    <li><a href="#about">Về chúng tôi</a></li>
-                    <li><a href="#contact">Liên hệ</a></li>
-                </ul>
-            </div>
+    form.addEventListener("submit", function () {
+        setTimeout(function () {
+            if (actionClicked === "add" || actionClicked === "edit") {
+                const actionText = labels[actionClicked] || actionClicked;
+                const confirmMore = confirm(`Đã ${actionText} thành công! Bạn có muốn tiếp tục ${actionText} nữa không?`);
+                if (!confirmMore) {
+                    window.location.href = redirectUrl;
+                }
+            }
+        }, 300);
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    setupFormHandler("#sinh-vien", "actionsv", "Welcome.php", { add: "thêm sinh viên", edit: "cập nhật sinh viên" });
+    setupFormHandler("#thanh-toan", "action_tt", "Welcome.php", { add: "thêm hóa đơn", edit: " " });
+    const urlParams = new URLSearchParams(window.location.search);
+    const view = urlParams.get('view');
+    const search = urlParams.get('search');
+    if (view === 'thanh-toan' || search) {
+        showContent('thanh-toan');
+    }
 
-            <div class="footer-section">
-                <h3>Theo dõi chúng tôi</h3>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#"><i class="fab fa-youtube"></i></a>
-                </div>
-               
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <p>© 2024 QNP Events. Bảo lưu mọi quyền.</p>
-            <p>Thiết kế bởi <a href="#" class="designer-link">QNP Team</a></p>
-        </div>
-    </div>
-    </footer>
+    // Thêm thông báo nếu có success
+    const success = urlParams.get('success');
+    if (success === '1') {
+        alert("✔️ Thêm hóa đơn thành công!");
+    }
+});
+    </script>   
 </body>
 </html>

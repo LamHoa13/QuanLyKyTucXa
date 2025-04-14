@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 
     // Tránh submit lại, quay về welcome
-    header("Location: welcome.php");
+    header("Location: Welcome.php");
     exit();
 }
 
